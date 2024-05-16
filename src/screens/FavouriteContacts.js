@@ -1,4 +1,4 @@
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, StyleSheet,Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {openDatabase} from 'react-native-sqlite-storage';
@@ -40,6 +40,12 @@ const FavouriteContacts = () => {
           renderItem={({item, index}) => {
             return (
               <TouchableOpacity style={styles.contactListItem}>
+                <Image
+                  style={styles.profileImage}
+                  source={{
+                    uri: item.contact_photo,
+                  }}
+                />
                 <Text style={styles.contactListItemText}>
                   {item.contact_name}
                 </Text>
@@ -60,12 +66,20 @@ const styles = StyleSheet.create({
     paddingLeft: 50,
     backgroundColor: 'white',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
   contactListItemText: {
     fontSize: 20,
     color: 'black',
     marginTop: 5,
+    marginLeft: 30,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 0,
+    paddingRight: 0,
   },
 });
 

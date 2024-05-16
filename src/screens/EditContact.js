@@ -77,7 +77,7 @@ const EditContact = () => {
         return;
       }
       // console.log('Image', response.assets[0]);
-      setProfilePhoto(response.assets[0]);
+      setProfilePhoto(response.assets[0].uri);
     });
 
     // launchCamera(options, response => {
@@ -110,7 +110,8 @@ const EditContact = () => {
             <Image
               style={{width: 80, height: 80, borderRadius: 40}}
               source={{
-                uri: `data:${profilePhoto.type};base64,${profilePhoto.base64}`,
+                uri: profilePhoto,
+                // uri: `data:${profilePhoto.type};base64,${profilePhoto}`,
               }}
             />
           ) : (
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     shadowColor: 'black',
     elevation: 5,
+    fontSize:17,
   },
   saveButton: {
     width: 150,

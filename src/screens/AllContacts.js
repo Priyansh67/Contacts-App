@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  Image,
   ToastAndroid,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
@@ -20,21 +21,23 @@ let db = openDatabase({name: 'ContactDatabase2.db'});
 const AllContacts = () => {
   const [contactList, setContactList] = useState([]);
 
+  const [searchText, setSearchText] = useState('');
 
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    getAllContactsList();
-  }, [isFocused]);
+    if (searchText === '') getAllContactsList();
+  }, [isFocused, contactList]);
 
   const getAllContactsList = () => {
     db.transaction(txn => {
       txn.executeSql('SELECT * FROM table_contact', [], (tex, res) => {
-        console.log('res.length-' + res.rows.length);
+        // console.log('res.length-' + res.rows.length);
         let temp = [];
         for (let i = 0; i < res.rows.length; ++i) {
-          console.log(res.rows.item(i));
+          // console.log(res.rows.item(i).contact_photo.uri);
+          // console.log(res.rows.item(i));
           temp.push(res.rows.item(i));
         }
         setContactList(temp);
@@ -59,6 +62,14 @@ const AllContacts = () => {
     });
   };
 
+  const searchContact = text => {
+    setSearchText(text);
+    const tempContacts = contactList.filter(item => {
+      const name = item.contact_name.toLowerCase();
+      return name.includes(text.toLowerCase());
+    });
+    setContactList(tempContacts);
+  };
 
   return (
     <View>
@@ -66,17 +77,28 @@ const AllContacts = () => {
         <TextInput
           style={styles.searchInputBox}
           placeholder="Search contacts"
+          value={searchText}
           clearButtonMode="always"
+          onChangeText={text => searchContact(text)}
         />
       </View>
       <View>
         <FlatList
           // data={contactList}
-          data={contactList.sort((a, b) => a.contact_name.localeCompare(b.contact_name))}
+          data={contactList.sort((a, b) =>
+            a.contact_name.localeCompare(b.contact_name),
+          )}
           renderItem={({item, index}) => {
             return (
               <TouchableOpacity style={styles.contactListItem}>
-                <Text style={styles.contactListItemText}>
+                <Image
+                  style={styles.profileImage}
+                  source={{
+                    uri: item.contact_photo,
+                    // uri: `data:${item.contact_photo.type};base64,${item.contact_photo.base64}`,
+                  }}
+                />
+                <Text style={styles.contactListItemName}>
                   {item.contact_name}
                 </Text>
                 <View style={styles.showButtons}>
@@ -168,20 +190,30 @@ const styles = StyleSheet.create({
     paddingLeft: 50,
     backgroundColor: 'white',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
-  contactListItemText: {
+  contactListItemName: {
     fontSize: 20,
     color: 'black',
     marginTop: 5,
+    marginLeft: 30,
   },
   showButtons: {
+    flexDirection: 'row',
     width: '30%',
     height: 40,
-    backgroundColor: '#fff',
+    marginLeft: 70,
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    flexDirection: 'row',
+    position:'absolute',
+    marginTop:10,
+    marginLeft:270,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 0,
+    paddingRight: 0,
   },
 });
 

@@ -20,7 +20,7 @@ const AddNewContact = () => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [landline, setLandline] = useState('');
-  const [profilePhoto, setProfilePhoto] = useState('');
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [isFavourite, setIsFavourite] = useState(false);
 
   const navigation = useNavigation();
@@ -44,9 +44,11 @@ const AddNewContact = () => {
     });
   }, []);
 
-  const saveData = () => {
-    db.transaction(txn => {
-      txn.executeSql(
+  const saveData = async() => {
+    setProfilePhoto(JSON.stringify(profilePhoto))
+    console.log('profile log- '+profilePhoto);
+    await db.transaction(async(txn) => {
+      await txn.executeSql(
         'INSERT INTO table_contact (contact_name, contact_mobile, contact_landline, contact_photo, contact_isFavourite) VALUES (?,?,?,?,?)',
         [name, mobile, landline, profilePhoto, isFavourite],
         (tex, res) => {
@@ -81,8 +83,8 @@ const AddNewContact = () => {
         console.log(response.error);
         return;
       }
-      // console.log('Image', response.assets[0]);
-      setProfilePhoto(response.assets[0]);
+      console.log('Image', response.assets[0].type);
+      setProfilePhoto(response.assets[0].uri);
     });
 
     // launchCamera(options, response => {
@@ -107,7 +109,7 @@ const AddNewContact = () => {
               : <Icon2 name="staro" size={35} color="black" />
             }
           </TouchableOpacity>
-        </View>
+        </View> 
 
         <TouchableOpacity
           style={styles.profilePhotoUploadButton}
@@ -116,7 +118,8 @@ const AddNewContact = () => {
             <Image
               style={{width: 80, height: 80, borderRadius: 40}}
               source={{
-                uri: `data:${profilePhoto.type};base64,${profilePhoto.base64}`,
+                uri: profilePhoto
+               // uri: `data:${profilePhoto.type};base64,${profilePhoto.base64}`,
               }}
             />
           ) : (
@@ -165,6 +168,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     shadowColor: 'black',
     elevation: 5,
+    fontSize:17,
   },
   saveButton: {
     width: 150,
